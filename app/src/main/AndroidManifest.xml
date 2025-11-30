@@ -12,6 +12,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BivlotectaTecnica">
         <activity
+            android:name=".StepRegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TechListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReportListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
