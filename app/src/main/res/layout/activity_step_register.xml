@@ -24,14 +24,15 @@
             android:layout_marginBottom="24dp"
             android:fontFamily="sans-serif-condensed"/>
 
-        <!-- Etiqueta Nombre del Componente --><TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Nombre del Componente"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp"
-        android:fontFamily="sans-serif-condensed" />
+        <!-- Etiqueta Nombre del Componente -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre del Componente"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-condensed" />
 
         <EditText
             android:id="@+id/edit_component_name"
@@ -45,14 +46,15 @@
             android:layout_marginBottom="16dp"
             android:singleLine="true"/>
 
-        <!-- Etiqueta Código de Inventario --><TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Código de Inventario"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp"
-        android:fontFamily="sans-serif-condensed" />
+        <!-- Etiqueta Código de Inventario -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Código de Inventario"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-condensed" />
 
         <EditText
             android:id="@+id/edit_inventory_code"
@@ -66,14 +68,15 @@
             android:layout_marginBottom="16dp"
             android:singleLine="true"/>
 
-        <!-- Tipo de Acción (Armado/Desarme) --><TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tipo de Procedimiento"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp"
-        android:fontFamily="sans-serif-condensed" />
+        <!-- Tipo de Acción (Armado/Desarme) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tipo de Procedimiento"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-condensed" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -107,81 +110,36 @@
                 android:fontFamily="sans-serif-condensed" />
         </LinearLayout>
 
-        <!-- Área de Fotografía y Descripción (primer paso) --><TextView
-        android:id="@+id/step_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Paso 1"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="sans-serif-condensed" />
-
-        <ImageView
-            android:id="@+id/image_preview_step1"
+        <!-- Contenedor para pasos dinámicos (Se infla list_item_step.xml aquí) -->
+        <LinearLayout
+            android:id="@+id/dynamic_steps_container"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="#292929"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_camera_placeholder_white"
-            android:contentDescription="Previsualización de la foto"
-            android:layout_marginBottom="16dp"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
 
+        <!-- Botón para AÑADIR OTRO PASO (+) -->
         <Button
-            android:id="@+id/btn_select_photo_step1"
+            android:id="@+id/btn_add_another_step"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Tomar/Subir Foto"
-            android:background="@drawable/rounded_button_background_tertiary"
+            android:layout_height="64dp"
+            android:text="+ Añadir Otro Paso"
+            android:background="@drawable/rounded_button_background_secondary"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-condensed" />
 
-        <EditText
-            android:id="@+id/edit_step_description1"
+        <!-- Botón para FINALIZAR INFORME -->
+        <Button
+            android:id="@+id/btn_finalize_report"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@drawable/rounded_edittext_background"
-            android:gravity="top"
-            android:hint="Descripción del Paso..."
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="12dp"
+            android:layout_height="64dp"
+            android:text="Finalizar Informe"
+            android:background="@drawable/rounded_button_background"
             android:textColor="@android:color/black"
-            android:textColorHint="#80000000"
-            android:inputType="textMultiLine"
-            android:layout_marginBottom="24dp"/>
-
-        <!-- Contenedor para pasos dinámicos --><LinearLayout
-        android:id="@+id/dynamic_steps_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"/>
-
-        <!-- Botón para AÑADIR OTRO PASO (+) --><Button
-        android:id="@+id/btn_add_another_step"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:text="+ Añadir Otro Paso"
-        android:background="@drawable/rounded_button_background_secondary"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="sans-serif-condensed" />
-
-        <!-- Botón para FINALIZAR INFORME --><Button
-        android:id="@+id/btn_finalize_report"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:text="Finalizar Informe"
-        android:background="@drawable/rounded_button_background"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:fontFamily="sans-serif-condensed" />
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-condensed" />
 
     </LinearLayout>
 </ScrollView>

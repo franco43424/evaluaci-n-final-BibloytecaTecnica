@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,50 +11,89 @@
         android:id="@+id/header_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Informes"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
+        android:text="Informes de Procedimiento"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:padding="24dp"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="sans-serif-condensed" />
+        android:padding="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_alignParentTop="true"/>
 
-    <!-- Lista de Informes (ListView) --><ListView
-    android:id="@+id/list_reports"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@id/header_title"
-    android:divider="@android:color/transparent"
-    android:dividerHeight="16dp"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:clipToPadding="false"
-    android:paddingBottom="96dp"/>
+    <!-- Lista de Informes (ListView) -->
+    <ListView
+        android:id="@+id/list_reports"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_title"
+        android:layout_above="@id/bottom_actions_container"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="16dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"/>
 
-    <!-- Vista Vacía --><TextView
-    android:id="@+id/empty_reports_view"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:text="No hay informes registrados."
-    android:textColor="#AAAAAA"
-    android:textSize="20sp"
-    android:fontFamily="sans-serif-condensed"
-    android:visibility="gone"/>
+    <!-- Vista Vacía -->
+    <TextView
+        android:id="@+id/empty_reports_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="No hay informes registrados."
+        android:textColor="#AAAAAA"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-condensed"
+        android:visibility="gone"/>
 
-    <!-- Botón para Crear Nuevo Informe (solo visible para Técnicos) --><Button
-    android:id="@+id/btn_new_report"
-    android:layout_width="match_parent"
-    android:layout_height="64dp"
-    android:layout_alignParentBottom="true"
-    android:layout_marginStart="24dp"
-    android:layout_marginEnd="24dp"
-    android:layout_marginBottom="16dp"
-    android:text="Crear Nuevo Informe"
-    android:background="@drawable/rounded_button_background"
-    android:textColor="@android:color/black"
-    android:textSize="20sp"
-    android:fontFamily="sans-serif-condensed" />
+    <!-- Contenedor de Botones Inferiores (para cerrar sesión, PDF y nuevo informe) -->
+    <LinearLayout
+        android:id="@+id/bottom_actions_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:weightSum="3">
+
+        <!-- 🚨 NUEVO BOTÓN: Generar PDF (Solo Admin) -->
+        <Button
+            android:id="@+id/btn_generate_pdf"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1.2"
+            android:text="Generar PDF"
+            android:background="@drawable/rounded_button_background_secondary"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-condensed"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"/>
+
+        <!-- Botón para Cerrar Sesión -->
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="0.8"
+            android:text="Salir"
+            android:background="@drawable/rounded_button_background_red"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-condensed"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Botón para Crear Nuevo Informe -->
+        <Button
+            android:id="@+id/fab_new_report"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:text="Crear"
+            android:background="@drawable/rounded_button_background"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-condensed"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
 
 </RelativeLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        Define la ruta segura para compartir archivos con otras aplicaciones (ej: la cámara).
+        'name="my_images"' es un alias para el FileProvider.
+        'path="Pictures"' apunta a la carpeta privada de la aplicación dentro de /Android/data/com.su_paquete/files/Pictures.
+    -->
+    <external-files-path name="my_images" path="Pictures" />
+</paths>
