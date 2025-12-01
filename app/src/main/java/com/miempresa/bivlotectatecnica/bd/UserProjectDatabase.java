@@ -27,6 +27,7 @@ public class UserProjectDatabase {
     private static final String TAG = "UserProjectDatabase";
 
     public UserProjectDatabase(Context context) {
+        // Usa el paquete de DBHelper (asumimos que ya lo corrigió)
         this.dbHelper = new DBHelper(context);
     }
 
@@ -40,6 +41,7 @@ public class UserProjectDatabase {
     public Cursor checkUserCredentials(String username, String passwordHash) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        // 🚨 CORRECCIÓN CLAVE: Prefijamos TODAS las columnas ambiguas con el alias de la tabla (U.)
         String[] projection = {
                 "U." + UserEntry._ID + " AS user_pk_id", // PK ID del usuario
                 "U." + UserEntry.COLUMN_NAME + " AS user_name_full", // Nombre completo del usuario
@@ -49,17 +51,24 @@ public class UserProjectDatabase {
                 "T." + TallerEntry.COLUMN_NAME + " AS " + UserProjectContract.ALIAS_TALLER_NOMBRE
         };
 
+        // Unir la tabla de usuarios con la tabla de talleres para obtener el nombre del taller
         String tables = UserEntry.TABLE_NAME + " U " +
                 "LEFT JOIN " + TallerEntry.TABLE_NAME + " T ON U." + UserEntry.COLUMN_WORKSHOP_ID + " = T." + TallerEntry._ID;
 
         String selection = "U." + UserEntry.COLUMN_USERNAME + " = ? AND " +
                 "U." + UserEntry.COLUMN_PASSWORD_HASH + " = ? AND " +
-                "U." + UserEntry.COLUMN_IS_ACTIVE + " = 1";
+                "U." + UserEntry.COLUMN_IS_ACTIVE + " = 1"; // Solo usuarios activos
 
         String[] selectionArgs = { username, passwordHash };
 
         Cursor cursor = db.query(
-                tables, projection, selection, selectionArgs, null, null, null
+                tables,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
         );
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -108,6 +117,7 @@ public class UserProjectDatabase {
                 values.put(ComponenteEntry.COLUMN_CODIGO_INVENTARIO, inventoryCode);
                 values.put(ComponenteEntry.COLUMN_WORKSHOP_ID, workshopId);
 
+                // Insertar y obtener la nueva ID
                 componenteId = db.insert(ComponenteEntry.TABLE_NAME, null, values);
             }
         } catch (Exception e) {
@@ -182,64 +192,105 @@ public class UserProjectDatabase {
     }
 
     /**
-     * 🚨 NUEVO: Obtiene los detalles de un informe específico para el PDF.
+     * Obtiene los detalles de un informe específico para el encabezado del PDF.
+     * La consulta se basa en el ID (Primary Key) del primer paso/registro del informe.
      */
     public Cursor getReportDetails(long reportId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
+        // Tablas: Informes (I), Componentes (C), Usuarios (U), Talleres (T)
         qb.setTables(
                 InformeEntry.TABLE_NAME + " I " +
                         "INNER JOIN " + ComponenteEntry.TABLE_NAME + " C ON I." + InformeEntry.COLUMN_COMPONENTE_ID + " = C." + ComponenteEntry._ID +
                         " INNER JOIN " + UserEntry.TABLE_NAME + " U ON I." + InformeEntry.COLUMN_USER_ID + " = U." + UserEntry._ID +
-                        " INNER JOIN " + TallerEntry.TABLE_NAME + " T ON U." + UserEntry.COLUMN_WORKSHOP_ID + " = T." + TallerEntry._ID
+                        // Unimos a Taller a través del componente, no del usuario (para ser más robustos)
+                        " LEFT JOIN " + TallerEntry.TABLE_NAME + " T ON C." + ComponenteEntry.COLUMN_WORKSHOP_ID + " = T." + TallerEntry._ID
         );
 
+        // Columnas a devolver (incluyendo los alias necesarios para ReportPDFGenerator)
         String[] projectionIn = {
-                "I." + InformeEntry._ID,
                 "I." + InformeEntry.COLUMN_ACTION_TYPE,
                 "I." + InformeEntry.COLUMN_DATE_LOGGED,
                 "C." + ComponenteEntry.COLUMN_NAME, // Nombre del componente
                 "C." + ComponenteEntry.COLUMN_CODIGO_INVENTARIO, // Código
-                "U." + UserEntry.COLUMN_NAME + " AS " + UserProjectContract.ALIAS_TECNICO_NOMBRE,
-                "T." + TallerEntry.COLUMN_NAME + " AS " + UserProjectContract.ALIAS_TALLER_NOMBRE
+                "U." + UserEntry.COLUMN_NAME + " AS " + UserProjectContract.ALIAS_TECNICO_NOMBRE, // Nombre del Técnico
+                "T." + TallerEntry.COLUMN_NAME + " AS " + UserProjectContract.ALIAS_TALLER_NOMBRE // Nombre del Taller
         };
 
+        // Seleccionar solo el registro inicial (Primary Key) del informe
         String selection = "I." + InformeEntry._ID + " = ?";
         String[] selectionArgs = { String.valueOf(reportId) };
 
-        Cursor cursor = qb.query(db, projectionIn, selection, selectionArgs, null, null, null);
+        Cursor cursor = qb.query(db, projectionIn, selection, selectionArgs, null, null, InformeEntry.COLUMN_DATE_LOGGED + " ASC", "1"); // LIMIT 1
 
-        // Es importante cerrar el cursor en la utilidad de PDF, no aquí.
         return cursor;
     }
 
     /**
-     * 🚨 NUEVO: Obtiene todos los pasos (registros fotográficos) de un informe.
+     * 🚨 CORRECCIÓN CRÍTICA: Obtiene todos los pasos (registros fotográficos) de un informe.
+     * Utiliza una consulta en dos pasos para garantizar que se recuperan todos los registros
+     * que pertenecen al mismo Componente y Tipo de Acción que el registro inicial (reportId).
      */
     public Cursor getStepsForReport(long reportId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor initialCursor = null;
+        String componenteId = null;
+        String actionType = null;
 
-        String[] projection = {
-                InformeEntry._ID,
-                InformeEntry.COLUMN_STEP_NUMBER,
-                InformeEntry.COLUMN_DESCRIPTION,
-                InformeEntry.COLUMN_PHOTO_URI,
-                InformeEntry.COLUMN_DATE_LOGGED
-        };
+        // 1. Encontrar el COMPONENTE_ID y ACTION_TYPE usando el ID del primer registro (reportId)
+        try {
+            initialCursor = db.query(
+                    InformeEntry.TABLE_NAME,
+                    new String[]{InformeEntry.COLUMN_COMPONENTE_ID, InformeEntry.COLUMN_ACTION_TYPE},
+                    InformeEntry._ID + " = ?",
+                    new String[]{String.valueOf(reportId)},
+                    null, null, null, "1" // Limitado a 1
+            );
 
-        String selection = InformeEntry.COLUMN_COMPONENTE_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(reportId) };
+            if (initialCursor != null && initialCursor.moveToFirst()) {
+                // Obtener los datos clave para el filtro
+                componenteId = initialCursor.getString(initialCursor.getColumnIndexOrThrow(InformeEntry.COLUMN_COMPONENTE_ID));
+                actionType = initialCursor.getString(initialCursor.getColumnIndexOrThrow(InformeEntry.COLUMN_ACTION_TYPE));
+            } else {
+                Log.w(TAG, "No se encontró el registro inicial del informe para determinar el grupo de pasos: ID " + reportId);
+                return null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error al buscar el Componente ID y Action Type para el reporte: " + reportId, e);
+            return null;
+        } finally {
+            if (initialCursor != null) {
+                initialCursor.close();
+            }
+        }
 
-        // Ordenar por número de paso
-        return db.query(
-                InformeEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null, null,
-                InformeEntry.COLUMN_STEP_NUMBER + " ASC"
-        );
+        // 2. Si se encuentran los datos, consultar TODOS los pasos con ese COMPONENTE_ID y ACTION_TYPE
+        if (componenteId != null && actionType != null) {
+            String[] projection = {
+                    InformeEntry._ID,
+                    InformeEntry.COLUMN_STEP_NUMBER,
+                    InformeEntry.COLUMN_DESCRIPTION,
+                    InformeEntry.COLUMN_PHOTO_URI,
+                    InformeEntry.COLUMN_DATE_LOGGED
+            };
+
+            // Filtrar por Componente ID y Tipo de Acción para agrupar todos los pasos del reporte lógico
+            String selection = InformeEntry.COLUMN_COMPONENTE_ID + " = ? AND " + InformeEntry.COLUMN_ACTION_TYPE + " = ?";
+            String[] selectionArgs = { componenteId, actionType };
+
+            // Ordenar por número de paso
+            return db.query(
+                    InformeEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null, null,
+                    InformeEntry.COLUMN_STEP_NUMBER + " ASC"
+            );
+        }
+
+        return null;
     }
 
     /**
@@ -270,5 +321,5 @@ public class UserProjectDatabase {
     }
 
     // --- Métodos de Ayuda CRUD (Pendientes) ---
-    // Implementación de: updateStep, deleteReport, y Gestión de Técnicos
+    // Implementación de: updateStep, deleteReport, etc.
 }

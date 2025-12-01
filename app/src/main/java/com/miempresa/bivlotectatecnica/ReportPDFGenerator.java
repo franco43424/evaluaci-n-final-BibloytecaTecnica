@@ -3,17 +3,20 @@ package com.miempresa.bivlotectatecnica;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap; // Importación necesaria
+import android.graphics.BitmapFactory; // Importación necesaria
 import android.graphics.Canvas;
+import android.graphics.Matrix; // Importación necesaria para escalar
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
-import android.net.Uri; // Importación necesaria
-import android.os.Environment;
+import android.net.Uri;
+import android.os.Environment; // Aún para obtener getExternalStoragePublicDirectory aunque se use getExternalFilesDir
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider; // Importación necesaria
+import androidx.core.content.FileProvider;
 
 import com.miempresa.bivlotectatecnica.bd.UserProjectContract;
 import com.miempresa.bivlotectatecnica.bd.UserProjectDatabase;
@@ -21,11 +24,12 @@ import com.miempresa.bivlotectatecnica.bd.UserProjectDatabase;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream; // Importación necesaria para cargar imágenes
 import java.util.Locale;
 
 /**
  * Utilidad para generar un archivo PDF a partir de un Informe de Procedimiento.
- * Este PDF se guarda en el directorio de Documentos/Descargas del dispositivo.
+ * Este PDF se guarda en un directorio privado de la aplicación.
  */
 public class ReportPDFGenerator {
 
@@ -36,6 +40,9 @@ public class ReportPDFGenerator {
     // Dimensiones del PDF (A4)
     private static final int PAGE_WIDTH = 595;
     private static final int PAGE_HEIGHT = 842;
+    private static final int MARGIN_X = 40; // Margen izquierdo/derecho
+    private static final int IMAGE_MAX_WIDTH = PAGE_WIDTH - (2 * MARGIN_X); // Ancho máximo de la imagen
+    private static final int IMAGE_MAX_HEIGHT = 200; // Altura máxima para las imágenes
 
     public ReportPDFGenerator(Context context, UserProjectDatabase db) {
         this.context = context;
@@ -48,7 +55,6 @@ public class ReportPDFGenerator {
      */
     public boolean generate(long reportId) {
 
-        // Asumimos que los métodos getReportDetails y getStepsForReport están implementados en el DAO
         Cursor reportCursor = db.getReportDetails(reportId);
         Cursor stepsCursor = db.getStepsForReport(reportId);
 
@@ -64,7 +70,7 @@ public class ReportPDFGenerator {
         Canvas canvas = page.getCanvas();
         Paint paint = new Paint();
         int y = 50; // Posición inicial vertical
-        int x = 40; // Margen izquierdo
+        int x = MARGIN_X; // Margen izquierdo
 
         reportCursor.moveToFirst();
 
@@ -104,7 +110,9 @@ public class ReportPDFGenerator {
             int photoUriIndex = stepsCursor.getColumnIndexOrThrow(UserProjectContract.InformeEntry.COLUMN_PHOTO_URI);
 
             do {
-                if (y > PAGE_HEIGHT - 100) { // Si queda poco espacio, creamos una nueva página
+                // Verificar si necesitamos una nueva página antes de dibujar el paso
+                // Consideramos espacio para texto y posible imagen
+                if (y > PAGE_HEIGHT - (IMAGE_MAX_HEIGHT + 100)) {
                     document.finishPage(page);
                     page = document.startPage(pageInfo);
                     canvas = page.getCanvas();
@@ -125,21 +133,61 @@ public class ReportPDFGenerator {
                 paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
                 canvas.drawText("Descripción: " + (TextUtils.isEmpty(desc) ? "Sin descripción registrada" : desc), x, y, paint); y += 15;
 
-                // Ruta de la Foto (Indicador)
-                canvas.drawText("Foto Adjunta: " + (TextUtils.isEmpty(uriPath) ? "No" : "Sí"), x, y, paint); y += 30;
+                // 🚨 AÑADIR IMAGEN
+                if (!TextUtils.isEmpty(uriPath)) {
+                    try {
+                        Uri imageUri = Uri.parse(uriPath);
+                        InputStream imageStream = context.getContentResolver().openInputStream(imageUri);
+                        Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
+                        if (imageStream != null) imageStream.close();
 
+                        if (originalBitmap != null) {
+                            // Escalar el bitmap para que quepa en el PDF
+                            Bitmap scaledBitmap = getScaledBitmap(originalBitmap, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
+
+                            // Verificar espacio nuevamente si la imagen es grande
+                            if (y + scaledBitmap.getHeight() + 30 > PAGE_HEIGHT) {
+                                document.finishPage(page);
+                                page = document.startPage(pageInfo);
+                                canvas = page.getCanvas();
+                                y = 50; // Reiniciar Y
+                            }
+
+                            canvas.drawBitmap(scaledBitmap, x, y, paint);
+                            y += scaledBitmap.getHeight() + 10; // Espacio después de la imagen
+                            scaledBitmap.recycle(); // Liberar memoria del bitmap escalado
+                            originalBitmap.recycle(); // Liberar memoria del bitmap original
+                        } else {
+                            canvas.drawText("Error al cargar imagen (Bitmap nulo).", x, y, paint); y += 15;
+                        }
+                    } catch (IOException | SecurityException e) {
+                        Log.e(TAG, "Error al cargar o dibujar la imagen para el paso " + stepNum + ": " + e.getMessage(), e);
+                        canvas.drawText("No se pudo cargar la imagen. Revise permisos: " + e.getMessage(), x, y, paint); y += 15;
+                    }
+                } else {
+                    canvas.drawText("Foto Adjunta: No", x, y, paint); y += 15; // Si no hay foto
+                }
+
+                y += 20; // Espacio entre pasos
             } while (stepsCursor.moveToNext());
         } else {
             paint.setTextSize(12f);
             canvas.drawText("No se registraron pasos para este informe.", x, y, paint);
         }
 
-        // --- 5. FINALIZAR Y GUARDAR EN DESCARGAS ---
+        // --- 5. FINALIZAR Y GUARDAR EN DESCARGAS PÚBLICAS ---
 
         document.finishPage(page);
 
-        // Define la ruta de guardado (Directorio de Documentos/Descargas)
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS); // Usamos DOCUMENTS o DOWNLOADS
+        // Directorio de almacenamiento PÚBLICO: carpeta 'Download'.
+        // NOTA IMPORTANTE: Para usar esta ruta, la app debe tener el permiso WRITE_EXTERNAL_STORAGE
+        // declarado en el Manifest y solicitado en tiempo de ejecución.
+        // Además, el FileProvider debe configurarse con <external-storage-path>.
+        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs(); // Crear el directorio si no existe
+        }
+
         String fileName = String.format(Locale.getDefault(), "INFORME_%s_%s.pdf", inventoryCode, actionType);
         File file = new File(downloadsDir, fileName);
 
@@ -149,19 +197,34 @@ public class ReportPDFGenerator {
             document.close();
             fos.close();
 
-            // 🚨 APERTURA AUTOMÁTICA DEL PDF
             openPdfFile(file);
 
             Toast.makeText(context, "PDF guardado en: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Error al guardar PDF: " + e.getMessage());
-            Toast.makeText(context, "Error al guardar el PDF. Asegure el permiso de almacenamiento.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Error al guardar el PDF.", Toast.LENGTH_LONG).show();
             return false;
         } finally {
             reportCursor.close();
             if (stepsCursor != null) stepsCursor.close();
         }
+    }
+
+    /**
+     * Escala un Bitmap para que quepa dentro de las dimensiones máximas especificadas,
+     * manteniendo la relación de aspecto.
+     */
+    private Bitmap getScaledBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scale = Math.min((float) maxWidth / width, (float) maxHeight / height);
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
     }
 
     /**
@@ -174,32 +237,24 @@ public class ReportPDFGenerator {
         }
 
         try {
-            // 1. Obtener una URI segura (Content URI) usando FileProvider
             Uri pdfUri = FileProvider.getUriForFile(context,
                     context.getApplicationContext().getPackageName() + ".fileprovider",
                     file);
 
-            // 2. Crear el Intent de vista
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(pdfUri, "application/pdf");
-
-            // 3. Conceder permisos temporales de lectura a otras aplicaciones
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            // 4. Asegurarse de que el Intent se lanza desde un contexto de Activity
             if (context instanceof android.app.Activity) {
                 context.startActivity(intent);
             } else {
-                // Si se llama desde un contexto que no es Activity (como un ApplicationContext),
-                // se necesita la flag NEW_TASK.
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
 
         } catch (IllegalArgumentException e) {
-            // Esto ocurre si el FileProvider no está correctamente configurado en el Manifest
-            Log.e(TAG, "Error de FileProvider al abrir PDF.", e);
-            Toast.makeText(context, "Error de configuración: FileProvider no configurado.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Error de FileProvider al abrir PDF (verifique configuración de paths en XML).", e);
+            Toast.makeText(context, "Error de configuración al abrir PDF.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(context, "No se encontró una aplicación para abrir el PDF.", Toast.LENGTH_LONG).show();
         }

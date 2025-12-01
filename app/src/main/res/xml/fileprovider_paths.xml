@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <!--
-        Define la ruta segura para compartir archivos con otras aplicaciones (ej: la cámara).
-        'name="my_images"' es un alias para el FileProvider.
-        'path="Pictures"' apunta a la carpeta privada de la aplicación dentro de /Android/data/com.su_paquete/files/Pictures.
+        Permite el acceso a archivos temporales de la aplicación (getFilesDir()).
+        Esta es la ruta más segura para la cámara.
     -->
-    <external-files-path name="my_images" path="Pictures" />
+    <external-files-path name="temp_photos" path="Pictures"/>
+
+    <!-- 🚨 CORRECCIÓN CRÍTICA: Permite acceso a todo el almacenamiento externo compartido.
+         Esto es necesario para el acceso a /Download/ y /Documents/ donde se guardan los PDFs. -->
+    <external-path name="external_storage_root" path="."/>
 </paths>
