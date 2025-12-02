@@ -323,3 +323,5 @@ public class UserProjectDatabase {
     // --- Métodos de Ayuda CRUD (Pendientes) ---
     // Implementación de: updateStep, deleteReport, etc.
 }
+
+
