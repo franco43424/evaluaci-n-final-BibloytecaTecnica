@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:background="#121212"
+    android:gravity="center"
+    tools:context=".AdminMenuActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Menú Administrador"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="60dp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Botón 1: Informes -->
+    <!-- ID: card_reports (Usado como Button en Java) -->
+    <Button
+        android:id="@+id/card_reports"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="Ver Todos los Informes"
+        android:background="@drawable/rounded_button_background_secondary"
+        android:textColor="@android:color/black"
+        android:textSize="22sp"
+        android:layout_marginBottom="32dp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Botón 2: Gestión de Técnicos -->
+    <!-- ID: card_technicians (Usado como Button en Java) -->
+    <Button
+        android:id="@+id/card_technicians"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="Gestión de Técnicos"
+        android:background="@drawable/rounded_button_background_secondary"
+        android:textColor="@android:color/black"
+        android:textSize="22sp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Botón de Cerrar Sesión (Añadido previamente) -->
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Cerrar Sesión"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/rounded_button_background_red"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-condensed" />
+
+</LinearLayout>

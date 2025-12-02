@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        Permite el acceso a archivos temporales de la aplicación (getFilesDir()).
+        Esta es la ruta más segura para la cámara.
+    -->
+    <external-files-path name="temp_photos" path="Pictures"/>
+
+    <!-- 🚨 CORRECCIÓN CRÍTICA: Permite acceso a todo el almacenamiento externo compartido.
+         Esto es necesario para el acceso a /Download/ y /Documents/ donde se guardan los PDFs. -->
+    <external-path name="external_storage_root" path="."/>
+</paths>

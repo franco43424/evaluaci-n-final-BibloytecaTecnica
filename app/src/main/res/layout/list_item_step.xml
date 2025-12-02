@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.androids.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:background="#121212">
+
+    <!-- Número de Paso (Ej: Paso 1) -->
+    <TextView
+        android:id="@+id/tv_step_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Paso X"
+        android:textColor="#03DAC6"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Previsualización de la Foto -->
+    <ImageView
+        android:id="@+id/image_preview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#1F1F1F"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_camera_placeholder_white"
+        android:contentDescription="Previsualización de la foto"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Botón para Tomar/Subir Foto -->
+    <Button
+        android:id="@+id/btn_select_photo"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Tomar/Subir Foto"
+        android:background="@drawable/rounded_button_background_tertiary"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Descripción del Paso -->
+    <EditText
+        android:id="@+id/edit_step_description"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/rounded_edittext_background"
+        android:gravity="top"
+        android:hint="Descripción del Paso..."
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:textColor="@android:color/black"
+        android:textColorHint="#80000000"
+        android:inputType="textMultiLine"
+        android:minLines="3"/>
+
+</LinearLayout>

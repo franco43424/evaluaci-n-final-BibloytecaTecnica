@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="4dp"
+
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:background="#1F1F1F"
+    android:descendantFocusability="blocksDescendants">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+
+        android:background="#1F1F1F">
+
+        <!-- Icono/Símbolo de Paso -->
+        <ImageView
+            android:id="@+id/iv_report_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_report_icon"
+            app:tint="#03DAC6"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="Icono de informe"/>
+
+        <!-- Textos del Informe -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Título: Nombre del Componente (Motor Bomba #123) -->
+            <TextView
+                android:id="@+id/tv_report_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Título del Componente (Código)"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"/>
+
+            <!-- Subtítulo: Tipo de Acción y Fecha (Desarme - 24/10/2023) -->
+            <TextView
+                android:id="@+id/tv_report_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tipo de Acción y Fecha"
+                android:textSize="14sp"
+                android:textColor="#AAAAAA"/>
+
+            <!-- Técnico: (Por: Juan Técnico) -->
+            <TextView
+                android:id="@+id/tv_report_technician"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Técnico: Nombre del Creador"
+                android:textSize="12sp"
+                android:textColor="#BB86FC"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+        <!-- 🚨 NUEVO BOTÓN: Generar PDF (Visible solo para Admin) -->
+        <ImageButton
+            android:id="@+id/btn_generate_pdf_item"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/rounded_button_background_secondary"
+            android:src="@android:drawable/ic_menu_save"
+            android:contentDescription="Generar PDF"
+            app:tint="#121212"
+            android:layout_marginStart="16dp"
+            android:visibility="gone"/> <!-- 🚨 INVISIBLE por defecto -->
+
+        <!-- Flecha de Navegación (Solo para el técnico) -->
+        <ImageView
+            android:id="@+id/iv_edit_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="#FFFFFF"
+            android:contentDescription="Editar"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

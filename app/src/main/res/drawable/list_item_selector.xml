@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Estado Seleccionado (Activado) - Cambiado a state_activated para mayor fiabilidad -->
+    <item android:state_activated="true">
+        <shape android:shape="rectangle">
+            <!-- Color de acento (Turquesa) cuando la fila está marcada para el PDF -->
+            <solid android:color="#03DAC6" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+
+    <!-- Estado Presionado (Pressed) -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <!-- Gris un poco más claro al presionar -->
+            <solid android:color="#292929" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+
+    <!-- Estado por defecto (No seleccionado, fondo oscuro) -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Color de fondo de la tarjeta oscura -->
+            <solid android:color="#1F1F1F" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+</selector>

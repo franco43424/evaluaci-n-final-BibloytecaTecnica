@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    tools:context=".TechnicianListActivity">
+
+    <TextView
+        android:id="@+id/header_techs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Técnicos"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:padding="24dp"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="sans-serif-condensed" />
+
+    <!-- Lista de Técnicos (ListView) --><ListView
+    android:id="@+id/list_technicians"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/header_techs"
+    android:divider="@android:color/transparent"
+    android:dividerHeight="16dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:clipToPadding="false"
+    android:paddingBottom="96dp"/>
+
+    <!-- Vista Vacía --><TextView
+    android:id="@+id/empty_technicians_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:text="No hay técnicos registrados."
+    android:textColor="#AAAAAA"
+    android:textSize="20sp"
+    android:fontFamily="sans-serif-condensed"
+    android:visibility="gone"/>
+
+    <!-- Botón para Agregar Nuevo Técnico (Solo Admin) --><Button
+    android:id="@+id/btn_add_technician"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_alignParentBottom="true"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="16dp"
+    android:text="Agregar Técnico"
+    android:background="@drawable/rounded_button_background"
+    android:textColor="@android:color/black"
+    android:textSize="20sp"
+    android:fontFamily="sans-serif-condensed" />
+
+</RelativeLayout>
